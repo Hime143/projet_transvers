@@ -37,6 +37,16 @@ while running:
             if event.key == pygame.K_d:
                 boubou_x += speed
                 boubou_img = img_right
+
+        if boubou_y == 1280:
+            boubou_y = 0
+        if boubou_y == 0:
+            boubou_y = 1280
+        if boubou_x == 700:
+            boubou_x = 0
+        if boubou_x == 0:
+            boubou_x = 700
+
     screen.fill((255, 255, 255))
     screen.blit(boubou_img, boubou_rect)
     pygame.display.flip()
