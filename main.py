@@ -112,4 +112,6 @@ while running:
     screen.blit(parametre, parametre_rect)
     pygame.display.flip()
 
+#banquise et poubelles
+
 pygame.quit()
