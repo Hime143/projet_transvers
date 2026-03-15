@@ -1,5 +1,10 @@
 import pygame
+from peche.mini_jeu_peche import lancer_mini_jeu
+
+
 pygame.init()
+font = pygame.font.SysFont(None, 30)
+
 
 screen = pygame.display.set_mode((1280, 700))
 pygame.display.set_caption("IceGuardian")
@@ -110,6 +115,16 @@ while running:
     screen.blit(poubelle, poubelle_rect)
     screen.blit(musique, musique_rect)
     screen.blit(parametre, parametre_rect)
+    if boubou_rect.colliderect(peche_rect):
+
+        texte = font.render("Appuyez sur E pour pêcher", True, (255, 255, 255))
+        screen.blit(texte, (520, 260))
+
+        if keys[pygame.K_e]:
+            lancer_mini_jeu()
+
+            # petite pause pour éviter que ça relance direct
+            pygame.time.delay(300)
     pygame.display.flip()
 
 #banquise et poubelles
