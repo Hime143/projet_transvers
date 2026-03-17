@@ -115,9 +115,11 @@ while running:
     screen.blit(poubelle, poubelle_rect)
     screen.blit(musique, musique_rect)
     screen.blit(parametre, parametre_rect)
+    boubou_inventaire = []
+
     if boubou_rect.colliderect(peche_rect):
 
-        texte = font.render("Appuyez sur E pour pêcher", True, (255, 255, 255))
+        texte = font.render("Appuyez sur E pour pêcher", True, (5, 5, 255))
         screen.blit(texte, (520, 260))
 
         if keys[pygame.K_e]:

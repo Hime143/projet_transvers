@@ -2,47 +2,51 @@
 
 import random
 import pygame
-import math
-from main import boubou_rect
+
+
+
 
 class dechet_poub :
 
-    def __init__(self,x,y,type_d):
+    def __init__(self,x,y):
         self.x = x
         self.y = y
-        self.type_d = None
-
-    def Spawn(self):
-        self.x.random.randint(0,1281)
-        self.y.random.randint(0, 701)
-        self.Type_ale()
-        self.draw((1280,700))
-
-
-    def Type_ale(self):
+        self.screen = pygame.Surface((50,50),pygame.SRCALPHA)
         self.type_d = random.choice(["plastic", "verre", "papier"])
+        if self.type_d == "plastic":
+            self.image = random.choice([pygame.image.load('Images/plastique_1.png'),pygame.image.load('Images/plastique_2.png'),pygame.image.load('Images/plastique_3.png')])
+        if self.type_d == "verre":
+            self.image = random.choice([pygame.image.load('Images/papier_1.png'),pygame.image.load('Images/papier_2.png'),pygame.image.load('Images/papier_3.png')])
+        if self.type_d == "papier":
+            self.image = random.choice([pygame.image.load('Images/verre_1.png'),pygame.image.load('Images/verre_2.png'),pygame.image.load('Images/verre_3.png')])
+        self.rect = self.image.get_rect(x=x, y=y)
+
 
     def collision(self,x,y):
-        return self.rect.collidepoint(x, y)
+        return self.pygame.Rect.colliderect(x, y)
 
 
     def collecter_dechet(self,inventaire):
-        if self.collision(boubou_rect.x,boubou_rect.y) :
-            inventaire.append(self)
+       # if self.collision(100,789) :
+       inventaire.append(self.type_d)
 
-    def draw(self,screen):
-        pygame.draw.circle(screen,(150,255,255),self.x,self.y,2)
+    def draw(self):
+        pass
 
-ev = []
-d = dechet_poub(0,0,"plastic")
-d.collecter_dechet(ev)
-d.Type_ale()
-
-print(ev)
-print(d.type_d)
+#ev = []
+#d = dechet_poub(0,0,"plastic")
+#emplacement = []
+#for i in range(5):
+ #   emplacement.append(d.Spawn())
+#print(emplacement)
+#for i in range (3) :
+ #   d.Type_ale()
+  #  d.collecter_dechet(ev)
+   # print(ev)
+    #print(d.type_d)
 #methode :
 #spawn (avec random)
-#collision_collecte
+#collision_collecte#
 #disparition()
 
 #sous class part type
