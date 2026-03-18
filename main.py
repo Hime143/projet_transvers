@@ -19,12 +19,14 @@ if not ecran_accueil(screen, clock, background, musique, parametre):
     pygame.quit()
     exit()
 
-boubou_rect = boubou_img.get_rect(center=(640, 350))
+
 maison_rect = maison.get_rect(center=(240, 150))
-musique_rect = musique.get_rect(center=(340, 200))
-parametre_rect = parametre.get_rect(center=(440, 250))
 peche_rect = peche.get_rect(center=(540, 300))
-poubelle_rect = poubelle.get_rect(center=(640, 350))
+poubelle_rect = poubelle.get_rect(center=(970, 250))
+poubelle_bleu_rect = poubelle_bleu.get_rect(center=(970, 170))
+poubelle_verte_rect = poubelle_verte.get_rect(center=(900, 170))
+poubelle_jaune_rect = poubelle_jaune.get_rect(center=(1040, 170))
+boubou_rect = boubou_img.get_rect(center=(640, 350))
 
 inventaire = Inventaire(capacite=15)
 interface_tri = InterfaceTri(inventaire, font)
@@ -206,9 +208,12 @@ while running:
 
     screen.blit(boubou_img, boubou_rect)
     screen.blit(maison, maison_rect)
-    screen.blit(musique, musique_rect)
-    screen.blit(parametre, parametre_rect)
     screen.blit(peche, peche_rect)
+    screen.blit(poubelle_bleu, poubelle_bleu_rect)
+    screen.blit(poubelle_jaune, poubelle_jaune_rect)
+    screen.blit(poubelle_verte, poubelle_verte_rect)
+
+
 
     if poubelle_rect.collidepoint(souris_pos):
         poubelle_hover = pygame.transform.smoothscale(poubelle, (75, 75))

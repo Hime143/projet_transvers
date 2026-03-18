@@ -63,3 +63,14 @@ peche = pygame.transform.scale(peche, (60,60))
 
 poubelle = pygame.image.load("Images/poubelle_icone.png").convert_alpha()
 poubelle = pygame.transform.scale(poubelle, (60,60))
+
+#POUBELLE
+
+poubelle_bleu = pygame.image.load("Images/poubelle_bleu.png").convert_alpha()
+poubelle_bleu = pygame.transform.scale(poubelle_bleu, (65,120))
+
+poubelle_jaune = pygame.image.load("Images/poubelle_jaune.png").convert_alpha()
+poubelle_jaune = pygame.transform.scale(poubelle_jaune, (65,120))
+
+poubelle_verte = pygame.image.load("Images/poubelle_verte.png").convert_alpha()
+poubelle_verte = pygame.transform.scale(poubelle_verte, (65,120))
