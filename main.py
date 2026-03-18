@@ -22,7 +22,6 @@ if not ecran_accueil(screen, clock, background, musique, parametre):
 
 # positions des éléments sur la map
 boubou_rect         = boubou_img.get_rect(center=(640, 350))
-maison_rect         = maison.get_rect(center=(240, 150))
 peche_rect          = peche.get_rect(center=(350, 500))
 poubelle_bleu_rect  = poubelle_bleu.get_rect(center=(970, 170))
 poubelle_verte_rect = poubelle_verte.get_rect(center=(900, 170))
@@ -55,6 +54,7 @@ moving          = False
 # inventaire visible ou non
 afficher_inventaire = False
 
+zone_menu = pygame.Rect(600, 140, 60, 60)
 
 def collision_poubelles(rect):
     """Bloque boubou quand ses pieds touchent le bas des poubelles"""
@@ -209,6 +209,7 @@ while running:
     # est-ce que boubou est proche des poubelles ou de la pêche ?
     proche_poubelle = proche_des_poubelles(boubou_rect)
     proche_peche    = proche_de_la_peche(boubou_rect)
+    proche_menu = boubou_rect.colliderect(zone_menu)
 
     # --- événements ---
     for event in pygame.event.get():
@@ -218,6 +219,8 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_TAB:
                 afficher_inventaire = not afficher_inventaire
+            if event.key == pygame.K_e and proche_menu:
+                ecran_accueil(screen, clock, background, musique, parametre)
 
         # clic dans l'interface de tri
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -328,7 +331,6 @@ while running:
 
     # boubou et icônes par dessus
     screen.blit(boubou_img,  boubou_rect)
-    screen.blit(maison,      maison_rect)
 
     # message quand boubou est proche des poubelles
     if proche_poubelle and not interface_tri.actif:
@@ -342,6 +344,12 @@ while running:
     if proche_peche and not interface_tri.actif:
         texte = font.render("E pour pêcher", True, (5, 5, 255))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+
+    # message proche igloo
+    if proche_menu:
+        font = pygame.font.SysFont(None, 30)
+        texte = font.render("Appuie sur E pour ouvrir le menu", True, (0, 0, 255))
+        screen.blit(texte, (boubou_rect.x - 50, boubou_rect.y - 40))
 
     # --- ramassage déchet avec F ---
     if not interface_tri.actif:
