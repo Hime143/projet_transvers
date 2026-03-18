@@ -65,27 +65,26 @@ def collision_poubelles(rect):
         5
     )
     collision_bleu = pygame.Rect(
-        poubelle_bleu_rect.x + 10,
+        poubelle_bleu_rect.x,                              # ← plus de marge sur les côtés
         poubelle_bleu_rect.y + poubelle_bleu_rect.height // 2,
-        poubelle_bleu_rect.width - 20,
+        poubelle_bleu_rect.width,                          # ← largeur totale
         poubelle_bleu_rect.height // 2
     )
     collision_jaune = pygame.Rect(
-        poubelle_jaune_rect.x + 10,
+        poubelle_jaune_rect.x,
         poubelle_jaune_rect.y + poubelle_jaune_rect.height // 2,
-        poubelle_jaune_rect.width - 20,
+        poubelle_jaune_rect.width,
         poubelle_jaune_rect.height // 2
     )
     collision_verte = pygame.Rect(
-        poubelle_verte_rect.x + 10,
+        poubelle_verte_rect.x,
         poubelle_verte_rect.y + poubelle_verte_rect.height // 2,
-        poubelle_verte_rect.width - 20,
+        poubelle_verte_rect.width,
         poubelle_verte_rect.height // 2
     )
     return (pieds.colliderect(collision_bleu) or
             pieds.colliderect(collision_jaune) or
             pieds.colliderect(collision_verte))
-
 
 def collision_peche(rect):
     """Bloque boubou autour de la zone de pêche"""
@@ -336,7 +335,7 @@ while running:
         if not inventaire.est_vide():
             texte = font.render("E pour trier", True, (255, 255, 255))
         else:
-            texte = font.render("Inventaire vide !", True, (255, 100, 100))
+            texte = font.render("", True, (255, 100, 100))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # message quand boubou est proche de la pêche
