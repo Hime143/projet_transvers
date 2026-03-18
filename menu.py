@@ -100,7 +100,7 @@ def ecran_accueil(screen, clock, background, musique, parametre):
         screen.blit(background, (0, 0))
 
         # titre
-        titre = font_titre.render("IceGuardian", True, (255, 255, 255))
+        titre = font_titre.render("IceGuardian", True, (0, 0, 255))
         screen.blit(titre, titre.get_rect(center=(sw//2, 150)))
 
         # boutons classiques
