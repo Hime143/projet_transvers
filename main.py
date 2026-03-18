@@ -79,6 +79,32 @@ def collision_poubelles(rect):
             pieds.colliderect(collision_verte))
 
 
+def collision_peche(rect):
+    """Bloque boubou autour de la zone de pêche"""
+    pieds = pygame.Rect(
+        rect.centerx - 10,
+        rect.bottom - 5,
+        20,
+        5
+    )
+    # zone de collision couvre toute l'image sauf le bord tout en bas
+    zone = pygame.Rect(
+        peche_rect.x + 10,
+        peche_rect.y + 10,
+        peche_rect.width - 20,
+        peche_rect.height - 20
+    )
+    return pieds.colliderect(zone)
+    # zone de collision sur la moitié haute de l'image pêche
+    zone = pygame.Rect(
+        peche_rect.x + 20,
+        peche_rect.y,
+        peche_rect.width - 40,
+        peche_rect.height // 2
+    )
+    return pieds.colliderect(zone)
+
+
 def proche_des_poubelles(rect):
     """Vérifie si boubou est proche des poubelles pour déclencher le tri"""
     zone_proche = pygame.Rect(
@@ -90,6 +116,16 @@ def proche_des_poubelles(rect):
     return (zone_proche.colliderect(poubelle_bleu_rect) or
             zone_proche.colliderect(poubelle_jaune_rect) or
             zone_proche.colliderect(poubelle_verte_rect))
+
+
+def proche_de_la_peche(rect):
+    zone_proche = pygame.Rect(
+        rect.centerx - 100,
+        rect.bottom - 80,
+        200,
+        80
+    )
+    return zone_proche.colliderect(peche_rect)
 
 
 def draw_inventaire(screen, inventaire, font):
@@ -171,8 +207,9 @@ while running:
         spawn_timer = 0
         dechets_map.append(Dechet(collision_map))
 
-    # est-ce que boubou est proche des poubelles ?
+    # est-ce que boubou est proche des poubelles ou de la pêche ?
     proche_poubelle = proche_des_poubelles(boubou_rect)
+    proche_peche    = proche_de_la_peche(boubou_rect)
 
     # --- événements ---
     for event in pygame.event.get():
@@ -201,7 +238,8 @@ while running:
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
             if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
-                    or collision_poubelles(boubou_rect)):
+                    or collision_poubelles(boubou_rect)
+                    or collision_peche(boubou_rect)):
                 boubou_rect.y = old_y
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
@@ -212,7 +250,8 @@ while running:
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
             if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
-                    or collision_poubelles(boubou_rect)):
+                    or collision_poubelles(boubou_rect)
+                    or collision_peche(boubou_rect)):
                 boubou_rect.y = old_y
 
         if keys[pygame.K_q] or keys[pygame.K_LEFT]:
@@ -223,7 +262,8 @@ while running:
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
             if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
-                    or collision_poubelles(boubou_rect)):
+                    or collision_poubelles(boubou_rect)
+                    or collision_peche(boubou_rect)):
                 boubou_rect.x = old_x
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
@@ -234,13 +274,19 @@ while running:
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
             if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
-                    or collision_poubelles(boubou_rect)):
+                    or collision_poubelles(boubou_rect)
+                    or collision_peche(boubou_rect)):
                 boubou_rect.x = old_x
 
-        # touche E pour ouvrir le tri près des poubelles
+        # touche E pour trier près des poubelles
         if keys[pygame.K_e] and proche_poubelle and not inventaire.est_vide():
             interface_tri.ouvrir()
             pygame.time.delay(200)
+
+        # touche E pour pêcher près de la zone de pêche
+        if keys[pygame.K_e] and proche_peche:
+            lancer_mini_jeu()
+            pygame.time.delay(300)
 
     # --- animation boubou ---
     if moving:
@@ -275,7 +321,8 @@ while running:
     for d in dechets_map:
         d.draw(screen)
 
-    # poubelles en premier pour que boubou passe devant
+    # zone pêche et poubelles en premier pour que boubou passe devant
+    screen.blit(peche,           peche_rect)
     screen.blit(poubelle_bleu,   poubelle_bleu_rect)
     screen.blit(poubelle_jaune,  poubelle_jaune_rect)
     screen.blit(poubelle_verte,  poubelle_verte_rect)
@@ -283,12 +330,18 @@ while running:
     # boubou et icônes par dessus
     screen.blit(boubou_img,  boubou_rect)
     screen.blit(maison,      maison_rect)
-    screen.blit(peche,       peche_rect)
 
     # message quand boubou est proche des poubelles
     if proche_poubelle and not interface_tri.actif:
         if not inventaire.est_vide():
             texte = font.render("E pour trier", True, (255, 255, 255))
+        else:
+            texte = font.render("", True, (255, 100, 100))
+        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+
+    # message quand boubou est proche de la pêche
+    if proche_peche and not interface_tri.actif:
+        texte = font.render("E pour pêcher", True, (5, 5, 255))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # --- ramassage déchet avec F ---
@@ -305,14 +358,6 @@ while running:
                     inventaire.ajouter(d)
                     dechets_map.remove(d)
                     pygame.time.delay(150)
-
-    # --- mini-jeu pêche ---
-    if boubou_rect.colliderect(peche_rect):
-        texte = font.render("E pour pêcher", True, (5, 5, 255))
-        screen.blit(texte, (520, 260))
-        if keys[pygame.K_e]:
-            lancer_mini_jeu()
-            pygame.time.delay(300)
 
     # inventaire TAB
     if afficher_inventaire:
