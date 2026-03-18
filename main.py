@@ -28,10 +28,18 @@ poubelle_bleu_rect  = poubelle_bleu.get_rect(center=(970, 170))
 poubelle_verte_rect = poubelle_verte.get_rect(center=(900, 170))
 poubelle_jaune_rect = poubelle_jaune.get_rect(center=(1040, 170))
 
+# zones où les déchets ne doivent pas spawner
+zones_interdites = [
+    peche_rect,
+    poubelle_bleu_rect,
+    poubelle_jaune_rect,
+    poubelle_verte_rect,
+]
+
 # déchets et inventaire
 inventaire    = Inventaire(capacite=15)
 interface_tri = InterfaceTri(inventaire, font)
-dechets_map   = [Dechet(collision_map) for _ in range(3)]
+dechets_map   = [Dechet(collision_map, zones_interdites) for _ in range(3)]
 
 # timer spawn déchets toutes les 12s
 spawn_timer    = 0
@@ -87,20 +95,11 @@ def collision_peche(rect):
         20,
         5
     )
-    # zone de collision couvre toute l'image sauf le bord tout en bas
     zone = pygame.Rect(
         peche_rect.x + 10,
         peche_rect.y + 10,
         peche_rect.width - 20,
         peche_rect.height - 20
-    )
-    return pieds.colliderect(zone)
-    # zone de collision sur la moitié haute de l'image pêche
-    zone = pygame.Rect(
-        peche_rect.x + 20,
-        peche_rect.y,
-        peche_rect.width - 40,
-        peche_rect.height // 2
     )
     return pieds.colliderect(zone)
 
@@ -119,6 +118,7 @@ def proche_des_poubelles(rect):
 
 
 def proche_de_la_peche(rect):
+    """Vérifie si boubou est proche de la zone de pêche"""
     zone_proche = pygame.Rect(
         rect.centerx - 100,
         rect.bottom - 80,
@@ -205,7 +205,7 @@ while running:
     spawn_timer += 1
     if spawn_timer >= spawn_interval and len(dechets_map) < 6:
         spawn_timer = 0
-        dechets_map.append(Dechet(collision_map))
+        dechets_map.append(Dechet(collision_map, zones_interdites))
 
     # est-ce que boubou est proche des poubelles ou de la pêche ?
     proche_poubelle = proche_des_poubelles(boubou_rect)
@@ -336,7 +336,7 @@ while running:
         if not inventaire.est_vide():
             texte = font.render("E pour trier", True, (255, 255, 255))
         else:
-            texte = font.render("", True, (255, 100, 100))
+            texte = font.render("Inventaire vide !", True, (255, 100, 100))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # message quand boubou est proche de la pêche
