@@ -3,11 +3,14 @@ import pygame
 
 class Inventaire:
 
-    def __init__(self, capacite=5):
+    def __init__(self, capacite=15):
         self.capacite = capacite
         self.contenu = []
 
     def ajouter(self, dechet):
+        nb_type = sum(1 for d in self.contenu if d.type_d == dechet.type_d)
+        if nb_type >= 5:
+            return False  # 5 max par catégorie
         if len(self.contenu) < self.capacite:
             self.contenu.append(dechet)
             return True

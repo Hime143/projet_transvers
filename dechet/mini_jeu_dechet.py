@@ -1,81 +1,40 @@
-# Example file showing a circle moving on screen
 import pygame
 import random
 from dechet.dechet import dechet_poub
-from boubou_dechet import player
 
-def lancer_jeu_poubelle() :
-    pygame.init()
+
+def lancer_jeu_poubelle(screen, clock, font, collision_map):
+
     nb_dechet = []
-    max_dechet = 3
-    boubou = player(0,0)
-    screen = pygame.display.set_mode((1000, 500))
-    clock = pygame.time.Clock()
+    max_dechet = 5
+    spawn_timer = 0
+    spawn_interval = 12 * 60
+
     running = True
 
-    dt = 0
-
-    def spawn():
-        while len(nb_dechet) < max_dechet:
-            coord_x = random.randint(1, screen.get_width() // 2)
-            coord_y = random.randint(1, screen.get_height() // 2)
-            dec = dechet_poub(coord_x, coord_y)
-            nb_dechet.append(dec)
-
-
     while running:
-        #event
+
+        clock.tick(60)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_z]:
-            boubou.velocity[1] = -1
-        elif keys[pygame.K_s]:
-            boubou.velocity[1] = 1
-        else :
-            boubou.velocity[1] = 0
+        # spawn toutes les 12s
+        spawn_timer += 1
+        if spawn_timer >= spawn_interval or len(nb_dechet) == 0:
+            spawn_timer = 0
+            if len(nb_dechet) < max_dechet:
+                nb_dechet.append(dechet_poub(collision_map))
 
-        if keys[pygame.K_q]:
-            boubou.velocity[0] = -1
-        elif keys[pygame.K_d]:
-            boubou.velocity[0] = 1
-        else :
-            boubou.velocity[0] = 0
+        screen.fill((200, 220, 255))
 
-
-
-        spawn()
         for d in nb_dechet:
-            screen.blit(pygame.transform.scale(d.image, (100, 100)), d.rect)
+            d.draw(screen)
 
-
-        #for toucher in nb_dechet:
-            #if toucher.rect.colliderect(boubou.rect) :
-                #t = font.render("touvher ", True, (5, 5, 255))
-                #screen.blit(t, toucher.rect)
-
-
-
-        #update
-        boubou.move()
-
-
-
-
-
-        #display
-        boubou.draw(screen)
         pygame.display.flip()
-        screen.fill("white")
 
-        # limits FPS to 60
-        # dt is delta time in seconds since last frame, used for framerate-
-        # independent physics.
-        dt = clock.tick(60) / 1000
-
-    pygame.quit()
-
-
-lancer_jeu_poubelle()
+    return True

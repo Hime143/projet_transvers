@@ -15,7 +15,7 @@ running = True
 speed = 3
 from img import *
 
-if not ecran_accueil(screen, clock, background,musique,parametre):
+if not ecran_accueil(screen, clock, background, musique, parametre):
     pygame.quit()
     exit()
 
@@ -26,10 +26,13 @@ parametre_rect = parametre.get_rect(center=(440, 250))
 peche_rect = peche.get_rect(center=(540, 300))
 poubelle_rect = poubelle.get_rect(center=(640, 350))
 
-inventaire = Inventaire(capacite=5)
+inventaire = Inventaire(capacite=15)
 interface_tri = InterfaceTri(inventaire, font)
 dechets_map = [Dechet(collision_map) for _ in range(10)]
 afficher_inventaire = False
+
+spawn_timer = 0
+spawn_interval = 12 * 60  # 12 secondes
 
 direction = "down"
 frame_index = 0
@@ -93,10 +96,9 @@ def _draw_inventaire_minecraft(screen, inventaire, font):
             img = pygame.transform.smoothscale(dechet.image, (78, 78))
             screen.blit(img, (sx + 6, sy + 6))
 
-        if liste:
-            font_nb = pygame.font.SysFont(None, 26)
-            nb_txt = font_nb.render(f"{len(liste)}/5 max", True, (200, 200, 200))
-            screen.blit(nb_txt, (fenetre_x + fenetre_w - 110, y + 40))
+        font_nb = pygame.font.SysFont(None, 26)
+        nb_txt = font_nb.render(f"{len(liste)}/5", True, (200, 200, 200))
+        screen.blit(nb_txt, (fenetre_x + fenetre_w - 80, y + 40))
 
     hint = font.render("TAB pour fermer", True, (150, 150, 150))
     screen.blit(hint, hint.get_rect(center=(fenetre_x + fenetre_w // 2, fenetre_y + fenetre_h - 20)))
@@ -107,6 +109,12 @@ while running:
     clock.tick(60)
 
     souris_pos = pygame.mouse.get_pos()
+
+    # spawn toutes les 12s
+    spawn_timer += 1
+    if spawn_timer >= spawn_interval:
+        spawn_timer = 0
+        dechets_map.append(Dechet(collision_map))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -202,7 +210,6 @@ while running:
     screen.blit(parametre, parametre_rect)
     screen.blit(peche, peche_rect)
 
-    # icône poubelle avec effet survol
     if poubelle_rect.collidepoint(souris_pos):
         poubelle_hover = pygame.transform.smoothscale(poubelle, (75, 75))
         screen.blit(poubelle_hover, poubelle_hover.get_rect(center=poubelle_rect.center))
@@ -212,18 +219,22 @@ while running:
     else:
         screen.blit(poubelle, poubelle_rect)
 
-    # ramassage avec F
     if not interface_tri.actif:
         for d in dechets_map[:]:
             if boubou_rect.colliderect(d.rect):
-                texte = font.render("F pour ramasser", True, (255, 255, 255))
+                nb_type = sum(1 for x in inventaire.contenu if x.type_d == d.type_d)
+                if nb_type >= 5:
+                    texte = font.render(f"Plein pour {d.type_d} !", True, (255, 100, 100))
+                elif inventaire.est_plein():
+                    texte = font.render("Inventaire plein !", True, (255, 100, 100))
+                else:
+                    texte = font.render("F pour ramasser", True, (255, 255, 255))
                 screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
-                if keys[pygame.K_f] and not inventaire.est_plein():
+                if keys[pygame.K_f] and not inventaire.est_plein() and nb_type < 5:
                     inventaire.ajouter(d)
                     dechets_map.remove(d)
                     pygame.time.delay(150)
 
-    # pêche
     if boubou_rect.colliderect(peche_rect):
         texte = font.render("Appuyez sur E pour pêcher", True, (5, 5, 255))
         screen.blit(texte, (520, 260))
