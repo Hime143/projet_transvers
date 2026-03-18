@@ -21,10 +21,9 @@ if not ecran_accueil(screen, clock, background, musique, parametre):
     exit()
 
 # positions des éléments sur la map
-boubou_rect        = boubou_img.get_rect(center=(640, 350))
-maison_rect        = maison.get_rect(center=(240, 150))
-peche_rect         = peche.get_rect(center=(540, 300))
-poubelle_rect      = poubelle.get_rect(center=(970, 250))
+boubou_rect         = boubou_img.get_rect(center=(640, 350))
+maison_rect         = maison.get_rect(center=(240, 150))
+peche_rect          = peche.get_rect(center=(540, 300))
 poubelle_bleu_rect  = poubelle_bleu.get_rect(center=(970, 170))
 poubelle_verte_rect = poubelle_verte.get_rect(center=(900, 170))
 poubelle_jaune_rect = poubelle_jaune.get_rect(center=(1040, 170))
@@ -39,25 +38,67 @@ spawn_timer    = 0
 spawn_interval = 12 * 60
 
 # animation boubou
-direction      = "down"
-frame_index    = 0
+direction       = "down"
+frame_index     = 0
 animation_timer = 0
 animation_speed = 20
-moving         = False
+moving          = False
 
 # inventaire visible ou non
 afficher_inventaire = False
 
 
+def collision_poubelles(rect):
+    """Bloque boubou quand ses pieds touchent le bas des poubelles"""
+    pieds = pygame.Rect(
+        rect.centerx - 10,
+        rect.bottom - 5,
+        20,
+        5
+    )
+    collision_bleu = pygame.Rect(
+        poubelle_bleu_rect.x + 10,
+        poubelle_bleu_rect.y + poubelle_bleu_rect.height // 2,
+        poubelle_bleu_rect.width - 20,
+        poubelle_bleu_rect.height // 2
+    )
+    collision_jaune = pygame.Rect(
+        poubelle_jaune_rect.x + 10,
+        poubelle_jaune_rect.y + poubelle_jaune_rect.height // 2,
+        poubelle_jaune_rect.width - 20,
+        poubelle_jaune_rect.height // 2
+    )
+    collision_verte = pygame.Rect(
+        poubelle_verte_rect.x + 10,
+        poubelle_verte_rect.y + poubelle_verte_rect.height // 2,
+        poubelle_verte_rect.width - 20,
+        poubelle_verte_rect.height // 2
+    )
+    return (pieds.colliderect(collision_bleu) or
+            pieds.colliderect(collision_jaune) or
+            pieds.colliderect(collision_verte))
+
+
+def proche_des_poubelles(rect):
+    """Vérifie si boubou est proche des poubelles pour déclencher le tri"""
+    zone_proche = pygame.Rect(
+        rect.centerx - 80,
+        rect.bottom - 60,
+        160,
+        60
+    )
+    return (zone_proche.colliderect(poubelle_bleu_rect) or
+            zone_proche.colliderect(poubelle_jaune_rect) or
+            zone_proche.colliderect(poubelle_verte_rect))
+
+
 def draw_inventaire(screen, inventaire, font):
     """Affiche l'inventaire style Minecraft quand on appuie sur TAB"""
 
-    # fond semi-transparent
     overlay = pygame.Surface((1280, 700), pygame.SRCALPHA)
     overlay.fill((0, 0, 0, 160))
     screen.blit(overlay, (0, 0))
 
-    # fenêtre inventaire
     fenetre_w = 700
     fenetre_h = 500
     fenetre_x = (1280 - fenetre_w) // 2
@@ -73,7 +114,6 @@ def draw_inventaire(screen, inventaire, font):
     titre = font.render("Inventaire", True, (220, 220, 220))
     screen.blit(titre, (fenetre_x + 20, fenetre_y + 15))
 
-    # on trie les déchets par catégorie
     categories = {"plastique": [], "verre": [], "papier": []}
     for d in inventaire.contenu:
         categories[d.type_d].append(d)
@@ -92,11 +132,9 @@ def draw_inventaire(screen, inventaire, font):
         liste = categories[type_d]
         y     = y_depart + ligne * (taille_slot + marge + 30)
 
-        # label de la catégorie
         label = font.render(f"{type_d.capitalize()} :", True, COULEURS_LABEL[type_d])
         screen.blit(label, (fenetre_x + 20, y))
 
-        # slots des déchets
         for col, dechet in enumerate(liste):
             sx = fenetre_x + 20 + col * (taille_slot + marge)
             sy = y + 28
@@ -111,7 +149,6 @@ def draw_inventaire(screen, inventaire, font):
             img = pygame.transform.smoothscale(dechet.image, (78, 78))
             screen.blit(img, (sx + 6, sy + 6))
 
-        # compteur x/5
         font_nb = pygame.font.SysFont(None, 26)
         nb_txt  = font_nb.render(f"{len(liste)}/5", True, (200, 200, 200))
         screen.blit(nb_txt, (fenetre_x + fenetre_w - 80, y + 40))
@@ -134,6 +171,9 @@ while running:
         spawn_timer = 0
         dechets_map.append(Dechet(collision_map))
 
+    # est-ce que boubou est proche des poubelles ?
+    proche_poubelle = proche_des_poubelles(boubou_rect)
+
     # --- événements ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -143,11 +183,8 @@ while running:
             if event.key == pygame.K_TAB:
                 afficher_inventaire = not afficher_inventaire
 
+        # clic dans l'interface de tri
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # clic sur la poubelle icône → ouvre le tri
-            if poubelle_rect.collidepoint(souris_pos) and not inventaire.est_vide():
-                interface_tri.ouvrir()
-            # clic dans l'interface de tri
             if interface_tri.actif:
                 interface_tri.gerer_clic(souris_pos)
 
@@ -163,7 +200,8 @@ while running:
             moving = True
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
-            if collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0):
+            if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
+                    or collision_poubelles(boubou_rect)):
                 boubou_rect.y = old_y
 
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
@@ -173,7 +211,8 @@ while running:
             moving = True
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
-            if collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0):
+            if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
+                    or collision_poubelles(boubou_rect)):
                 boubou_rect.y = old_y
 
         if keys[pygame.K_q] or keys[pygame.K_LEFT]:
@@ -183,7 +222,8 @@ while running:
             moving = True
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
-            if collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0):
+            if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
+                    or collision_poubelles(boubou_rect)):
                 boubou_rect.x = old_x
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
@@ -193,8 +233,14 @@ while running:
             moving = True
             foot_x = boubou_rect.centerx
             foot_y = boubou_rect.bottom
-            if collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0):
+            if (collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0)
+                    or collision_poubelles(boubou_rect)):
                 boubou_rect.x = old_x
+
+        # touche E pour ouvrir le tri près des poubelles
+        if keys[pygame.K_e] and proche_poubelle and not inventaire.est_vide():
+            interface_tri.ouvrir()
+            pygame.time.delay(200)
 
     # --- animation boubou ---
     if moving:
@@ -226,27 +272,24 @@ while running:
     # --- affichage ---
     screen.blit(background, (0, 0))
 
-    # déchets sur la map
     for d in dechets_map:
         d.draw(screen)
 
-    # boubou et icônes
-    screen.blit(boubou_img,      boubou_rect)
-    screen.blit(maison,          maison_rect)
-    screen.blit(peche,           peche_rect)
+    # poubelles en premier pour que boubou passe devant
     screen.blit(poubelle_bleu,   poubelle_bleu_rect)
     screen.blit(poubelle_jaune,  poubelle_jaune_rect)
     screen.blit(poubelle_verte,  poubelle_verte_rect)
 
-    # icône poubelle avec effet survol
-    if poubelle_rect.collidepoint(souris_pos):
-        poubelle_hover = pygame.transform.smoothscale(poubelle, (75, 75))
-        screen.blit(poubelle_hover, poubelle_hover.get_rect(center=poubelle_rect.center))
+    # boubou et icônes par dessus
+    screen.blit(boubou_img,  boubou_rect)
+    screen.blit(maison,      maison_rect)
+    screen.blit(peche,       peche_rect)
+
+    # message quand boubou est proche des poubelles
+    if proche_poubelle and not interface_tri.actif:
         if not inventaire.est_vide():
-            texte = font.render("Cliquer pour trier", True, (255, 255, 255))
-            screen.blit(texte, (poubelle_rect.x - 20, poubelle_rect.y - 25))
-    else:
-        screen.blit(poubelle, poubelle_rect)
+            texte = font.render("E pour trier", True, (255, 255, 255))
+        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # --- ramassage déchet avec F ---
     if not interface_tri.actif:
