@@ -15,7 +15,7 @@ running = True
 speed = 3
 from img import *
 
-if not ecran_accueil(screen, clock, background):
+if not ecran_accueil(screen, clock, background,musique,parametre):
     pygame.quit()
     exit()
 
