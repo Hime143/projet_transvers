@@ -25,9 +25,7 @@ class Poisson:
             (255, 80, 80),
             (255, 220, 50),
         ])
-        self.couleur_sombre = tuple(max(0, c - 60) for c in self.couleur)
 
-        # on charge l'image une seule fois ici
         self.image = self._charger_image()
 
     def _charger_image(self):
@@ -36,51 +34,53 @@ class Poisson:
         # petit poisson
         if self.taille == 60:
             if self.couleur == (255, 140, 0):
-                nom = "pet_poisson_bleu.png"
-            elif self.couleur == (100, 220, 100):
-                nom = "pet_poisson_jaune.png"
-            elif self.couleur == (220, 80, 180):
                 nom = "pet_poisson_orange.png"
-            elif self.couleur == (255, 80, 80):
-                nom = "pet_poisson_rose.png"
-            elif self.couleur == (255, 220, 50):
-                nom = "pet_poisson_rouge.png"
-            else:
+            elif self.couleur == (100, 220, 100):
                 nom = "pet_poisson_vert.png"
+            elif self.couleur == (220, 80, 180):
+                nom = "pet_poisson_rose.png"
+            elif self.couleur == (255, 80, 80):
+                nom = "pet_poisson_rouge.png"
+            elif self.couleur == (255, 220, 50):
+                nom = "pet_poisson_jaune.png"
+            else:
+                nom = "pet_poisson_bleu.png"
+
 
         # moyen poisson
         elif self.taille == 80:
             if self.couleur == (0, 200, 255):
                 nom = "moy_poissons_bleu.png"
             elif self.couleur == (100, 220, 100):
-                nom = "moy_poissons_jaune.png"
-            elif self.couleur == (220, 80, 180):
-                nom = "moy_poissons_orange.png"
-            elif self.couleur == (255, 220, 50):
-                nom = "moy_poissons_rose.png"
-            elif self.couleur == (255, 140, 0):
-                nom = "moy_poissons_rouge.png"
-            else:
                 nom = "moy_poissons_vert.png"
+            elif self.couleur == (220, 80, 180):
+                nom = "moy_poissons_rose.png"
+            elif self.couleur == (255, 220, 50):
+                nom = "moy_poissons_jaune.png"
+            elif self.couleur == (255, 140, 0):
+                nom = "moy_poissons_orange.png"
+            else:
+                nom = "moy_poissons_rouge.png"
 
         # grand poisson
         else:
             if self.couleur == (255, 140, 0):
-                nom = "gr_poissons_bleu.png"
-            elif self.couleur == (0, 200, 255):
-                nom = "gr_poissons_jaune.png"
-            elif self.couleur == (255, 80, 80):
-                nom = "gr_poissons_vert.png"
-            elif self.couleur == (220, 80, 180):
                 nom = "gr_poissons_orangepng.png"
-            elif self.couleur == (255, 220, 50):
-                nom = "gr_poissons_rose.png"
-            else:
+            elif self.couleur == (0, 200, 255):
+                nom = "gr_poissons_bleu.png"
+            elif self.couleur == (255, 80, 80):
                 nom = "gr_poissons_rouge.png"
+            elif self.couleur == (220, 80, 180):
+                nom = "gr_poissons_rose.png"
+            elif self.couleur == (255, 220, 50):
+                nom = "gr_poissons_jaune.png"
+            else:
+                nom = "gr_poissons_vert.png"
+
 
         # on charge et redimensionne une seule fois
         img = pygame.image.load(f"Images/{nom}").convert_alpha()
-        return pygame.transform.smoothscale(img, (self.taille,self.taille))
+        return pygame.transform.smoothscale(img, (self.taille*2,self.taille))
 
     def spawn(self):
         self.x = -120.0
