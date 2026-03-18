@@ -19,12 +19,7 @@ if not ecran_accueil(screen, clock, background):
     pygame.quit()
     exit()
 
-boubou_rect = boubou_img.get_rect(center=(640, 350))
-maison_rect = maison.get_rect(center=(240, 150))
-musique_rect = musique.get_rect(center=(340, 200))
-parametre_rect = parametre.get_rect(center=(440, 250))
-peche_rect = peche.get_rect(center=(540, 300))
-poubelle_rect = poubelle.get_rect(center=(640, 350))
+
 
 # --- déchets ---
 inventaire = Inventaire(capacite=5)
