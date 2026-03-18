@@ -359,7 +359,7 @@ while running:
                 if nb_type >= 5:
                     texte = font.render(f"Plein pour {d.type_d} !", True, (255, 100, 100))
                 else:
-                    texte = font.render("F pour ramasser", True, (255, 255, 255))
+                    texte = font.render("F pour ramasser", True, (0, 0, 255))
                 screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
                 if keys[pygame.K_f] and nb_type < 5:
                     inventaire.ajouter(d)
