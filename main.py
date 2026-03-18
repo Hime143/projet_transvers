@@ -1,7 +1,7 @@
 import pygame
 from peche.mini_jeu_peche import lancer_mini_jeu
 from menu import ecran_accueil
-
+from dechet.dechet_apparition import lancer_jeu_dechet
 
 pygame.init()
 font = pygame.font.SysFont(None, 30)
@@ -120,6 +120,21 @@ while running:
     screen.blit(musique, musique_rect)
     screen.blit(parametre, parametre_rect)
     boubou_inventaire = []
+
+
+    if boubou_rect.colliderect(poubelle_rect):
+        texte = font.render("E pour ramasser les déchets", True, (255, 255, 255))
+        screen.blit(texte, (520, 260))
+        if keys[pygame.K_e]:
+            lancer_jeu_dechet(
+                screen, clock, font, collision_map, background,
+                boubou_img, boubou_rect,
+                img_up, img_down, img_left, img_right,
+                img_up1, img_up2, img_down1, img_down2,
+                img_left1, img_left2, img_right1, img_right2,
+                poubelle
+            )
+            pygame.time.delay(300)
 
     if boubou_rect.colliderect(peche_rect):
 

@@ -1,8 +1,8 @@
 import pygame
 import random
-from dechet import Dechet
-from inventaire import Inventaire
-from tri_dechets import InterfaceTri
+from dechet.dechet import dechet_poub as Dechet
+from dechet.inventaire import Inventaire
+from dechet.tri_dechet import InterfaceTri
 
 
 def lancer_jeu_dechet(screen, clock, font, collision_map, background,
@@ -12,7 +12,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
                        img_left1, img_left2, img_right1, img_right2,
                        poubelle):
 
-    # copie du rect pour ne pas modifier l'original
     boubou_rect = boubou_rect_ref.copy()
     boubou_img = img_down
 
@@ -20,7 +19,7 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
     interface_tri = InterfaceTri(inventaire, font)
     dechets_map = [Dechet(collision_map) for _ in range(10)]
 
-    afficher_inventaire = False  # toggle avec TAB
+    afficher_inventaire = False
 
     direction = "down"
     frame_index = 0
@@ -51,7 +50,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
 
         keys = pygame.key.get_pressed()
 
-        # --- mouvements ---
         if not interface_tri.actif:
             if keys[pygame.K_z] or keys[pygame.K_UP]:
                 old_y = boubou_rect.y
@@ -93,7 +91,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
                 if collision_map.get_at((foot_x, foot_y))[:3] == (0, 0, 0):
                     boubou_rect.x = old_x
 
-        # --- animation ---
         if moving:
             animation_timer += 1
             if animation_timer >= animation_speed:
@@ -120,7 +117,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
 
         interface_tri.update()
 
-        # --- draw ---
         screen.blit(background, (0, 0))
 
         for d in dechets_map:
@@ -129,7 +125,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
         screen.blit(boubou_img, boubou_rect)
         screen.blit(poubelle, pygame.Rect(0, 0, 60, 60).move(640, 350))
 
-        # --- ramassage ---
         if not interface_tri.actif:
             for d in dechets_map[:]:
                 if boubou_rect.colliderect(d.rect):
@@ -140,7 +135,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
                         dechets_map.remove(d)
                         pygame.time.delay(150)
 
-            # --- tri ---
             poubelle_rect = pygame.Rect(640 - 30, 350 - 30, 60, 60)
             if boubou_rect.colliderect(poubelle_rect) and not inventaire.est_vide():
                 texte = font.render("E pour trier", True, (255, 255, 255))
@@ -149,16 +143,13 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
                     interface_tri.ouvrir()
                     pygame.time.delay(200)
 
-        # inventaire style Minecraft (barre du bas toujours visible)
         _draw_hotbar(screen, inventaire, font)
 
-        # inventaire complet (TAB)
         if afficher_inventaire:
             _draw_inventaire_minecraft(screen, inventaire, font)
 
         interface_tri.draw(screen)
 
-        # hint TAB
         hint = font.render("TAB : inventaire", True, (180, 180, 180))
         screen.blit(hint, (1100, 10))
 
@@ -168,7 +159,6 @@ def lancer_jeu_dechet(screen, clock, font, collision_map, background,
 
 
 def _draw_hotbar(screen, inventaire, font):
-    """Barre du bas style Minecraft — toujours visible"""
 
     taille_slot = 60
     nb_slots = inventaire.capacite
@@ -177,40 +167,35 @@ def _draw_hotbar(screen, inventaire, font):
     start_x = (1280 - largeur_totale) // 2
     y = 700 - taille_slot - 15
 
-    # compter les doublons
     compteur = {}
     for d in inventaire.contenu:
         compteur[d.type_d] = compteur.get(d.type_d, 0) + 1
 
-    # fond de la barre
     pygame.draw.rect(
-        screen,
-        (30, 30, 30),
+        screen, (30, 30, 30),
         pygame.Rect(start_x - 8, y - 8, largeur_totale + 16, taille_slot + 16),
         border_radius=8
     )
     pygame.draw.rect(
-        screen,
-        (80, 80, 80),
+        screen, (80, 80, 80),
         pygame.Rect(start_x - 8, y - 8, largeur_totale + 16, taille_slot + 16),
         2, border_radius=8
     )
 
-    # slots
     vus = {}
     for i in range(nb_slots):
         sx = start_x + i * (taille_slot + marge)
 
-        # fond slot
-        pygame.draw.rect(screen, (50, 50, 50), pygame.Rect(sx, y, taille_slot, taille_slot), border_radius=4)
-        pygame.draw.rect(screen, (100, 100, 100), pygame.Rect(sx, y, taille_slot, taille_slot), 1, border_radius=4)
+        pygame.draw.rect(screen, (50, 50, 50),
+                         pygame.Rect(sx, y, taille_slot, taille_slot), border_radius=4)
+        pygame.draw.rect(screen, (100, 100, 100),
+                         pygame.Rect(sx, y, taille_slot, taille_slot), 1, border_radius=4)
 
         if i < len(inventaire.contenu):
             dechet = inventaire.contenu[i]
             img = pygame.transform.smoothscale(dechet.image, (48, 48))
             screen.blit(img, (sx + 6, y + 6))
 
-            # compteur doublon style Minecraft (en bas à droite du slot)
             qte = compteur.get(dechet.type_d, 1)
             if dechet.type_d not in vus:
                 vus[dechet.type_d] = 0
@@ -223,14 +208,11 @@ def _draw_hotbar(screen, inventaire, font):
 
 
 def _draw_inventaire_minecraft(screen, inventaire, font):
-    """Inventaire complet style Minecraft ouvert avec TAB"""
 
-    # fond semi-transparent
     overlay = pygame.Surface((1280, 700), pygame.SRCALPHA)
     overlay.fill((0, 0, 0, 160))
     screen.blit(overlay, (0, 0))
 
-    # fenêtre inventaire
     fenetre_w, fenetre_h = 500, 400
     fenetre_x = (1280 - fenetre_w) // 2
     fenetre_y = (700 - fenetre_h) // 2
@@ -245,7 +227,6 @@ def _draw_inventaire_minecraft(screen, inventaire, font):
     titre = font.render("Inventaire", True, (220, 220, 220))
     screen.blit(titre, (fenetre_x + 20, fenetre_y + 15))
 
-    # compter par type
     compteur = {"plastique": [], "verre": [], "papier": []}
     for d in inventaire.contenu:
         compteur[d.type_d].append(d)
@@ -264,7 +245,6 @@ def _draw_inventaire_minecraft(screen, inventaire, font):
 
         y = y_depart + ligne * (taille_slot + marge + 30)
 
-        # label catégorie avec couleur
         label = font.render(f"{type_d.capitalize()} :", True, COULEURS_TYPE[type_d])
         screen.blit(label, (fenetre_x + 20, y))
 
@@ -272,7 +252,6 @@ def _draw_inventaire_minecraft(screen, inventaire, font):
             sx = fenetre_x + 20 + col * (taille_slot + marge)
             sy = y + 25
 
-            # slot
             pygame.draw.rect(screen, (60, 60, 60),
                              pygame.Rect(sx, sy, taille_slot, taille_slot),
                              border_radius=4)
@@ -283,16 +262,10 @@ def _draw_inventaire_minecraft(screen, inventaire, font):
             img = pygame.transform.smoothscale(dechet.image, (52, 52))
             screen.blit(img, (sx + 6, sy + 6))
 
-        # nombre total du type en bas à droite du groupe
         if liste:
             font_nb = pygame.font.SysFont(None, 22)
-            nb_txt = font_nb.render(
-                f"{len(liste)}/5 max",
-                True,
-                (200, 200, 200)
-            )
+            nb_txt = font_nb.render(f"{len(liste)}/5 max", True, (200, 200, 200))
             screen.blit(nb_txt, (fenetre_x + fenetre_w - 90, y + 30))
 
-    # hint fermer
     hint = font.render("TAB pour fermer", True, (150, 150, 150))
     screen.blit(hint, hint.get_rect(center=(fenetre_x + fenetre_w // 2, fenetre_y + fenetre_h - 20)))
