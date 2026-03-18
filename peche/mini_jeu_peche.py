@@ -18,7 +18,7 @@ def lancer_mini_jeu():
     objectif = 10
     total_poissons_peches = 0
 
-    temps_total = 60 * 60
+    temps_total = (60 * 60)
     temps_restant = temps_total
 
     font_grande = pygame.font.SysFont(None, 52)

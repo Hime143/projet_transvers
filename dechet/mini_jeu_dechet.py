@@ -1,7 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame
 import random
-from dechet import dechet_poub
+from dechet.dechet import dechet_poub
 from boubou_dechet import player
 
 def lancer_jeu_poubelle() :

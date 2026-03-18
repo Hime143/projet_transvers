@@ -14,11 +14,14 @@ class dechet_poub :
         self.screen = pygame.Surface((50,50),pygame.SRCALPHA)
         self.type_d = random.choice(["plastic", "verre", "papier"])
         if self.type_d == "plastic":
-            self.image = random.choice([pygame.image.load('Images/plastique_1.png'),pygame.image.load('Images/plastique_2.png'),pygame.image.load('Images/plastique_3.png')])
+            self.image = random.choice([pygame.image.load('../Images/plastique_1.png'), pygame.image.load(
+                '../Images/plastique_2.png'), pygame.image.load('../Images/plastique_3.png')])
         if self.type_d == "verre":
-            self.image = random.choice([pygame.image.load('Images/papier_1.png'),pygame.image.load('Images/papier_2.png'),pygame.image.load('Images/papier_3.png')])
+            self.image = random.choice([pygame.image.load('../Images/papier_1.png'), pygame.image.load(
+                '../Images/papier_2.png'), pygame.image.load('../Images/papier_3.png')])
         if self.type_d == "papier":
-            self.image = random.choice([pygame.image.load('Images/verre_1.png'),pygame.image.load('Images/verre_2.png'),pygame.image.load('Images/verre_3.png')])
+            self.image = random.choice([pygame.image.load('../Images/verre_1.png'), pygame.image.load(
+                '../Images/verre_2.png'), pygame.image.load('../Images/verre_3.png')])
         self.rect = self.image.get_rect(x=x, y=y)
 
 
