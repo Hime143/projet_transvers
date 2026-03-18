@@ -1,5 +1,6 @@
 import pygame
 from peche.mini_jeu_peche import lancer_mini_jeu
+from menu import ecran_accueil
 
 
 pygame.init()
@@ -12,6 +13,9 @@ clock = pygame.time.Clock()
 running = True
 speed = 3
 from img import *
+if not ecran_accueil(screen, clock, background):
+    pygame.quit()
+    exit()
 
 boubou_rect = boubou_img.get_rect(center=(640, 350))
 maison_rect = maison.get_rect(center=(240, 150))
