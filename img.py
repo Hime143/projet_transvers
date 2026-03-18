@@ -58,8 +58,8 @@ musique   = pygame.transform.smoothscale(musique, (60, 60))
 parametre = pygame.image.load("Images/parametre_icone.png").convert_alpha()
 parametre = pygame.transform.smoothscale(parametre, (60, 60))
 
-peche     = pygame.image.load("Images/peche_icone.png").convert_alpha()
-peche     = pygame.transform.smoothscale(peche, (60, 60))
+peche     = pygame.image.load("Images/peche_minijeu.png").convert_alpha()
+peche     = pygame.transform.smoothscale(peche, (200, 200))
 
 poubelle  = pygame.image.load("Images/poubelle_icone.png").convert_alpha()
 poubelle  = pygame.transform.smoothscale(poubelle, (60, 60))

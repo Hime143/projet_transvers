@@ -23,7 +23,7 @@ if not ecran_accueil(screen, clock, background, musique, parametre):
 # positions des éléments sur la map
 boubou_rect         = boubou_img.get_rect(center=(640, 350))
 maison_rect         = maison.get_rect(center=(240, 150))
-peche_rect          = peche.get_rect(center=(540, 300))
+peche_rect          = peche.get_rect(center=(350, 500))
 poubelle_bleu_rect  = poubelle_bleu.get_rect(center=(970, 170))
 poubelle_verte_rect = poubelle_verte.get_rect(center=(900, 170))
 poubelle_jaune_rect = poubelle_jaune.get_rect(center=(1040, 170))
