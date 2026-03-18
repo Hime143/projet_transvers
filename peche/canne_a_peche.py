@@ -15,7 +15,8 @@ class Canne:
         self.vitesse_descente = 1.2
         self.vitesse_remontee = 8
 
-        self.max_longueur = 650
+        # profondeur max en pixels verticaux
+        self.max_profondeur = 650
 
         self.direction_x = 0.0
         self.vitesse_derive = 1.8
@@ -25,13 +26,9 @@ class Canne:
     def _bout(self):
         return self.points[-1]
 
-    def _longueur_totale(self):
-        total = 0.0
-        for i in range(1, len(self.points)):
-            dx = self.points[i][0] - self.points[i-1][0]
-            dy = self.points[i][1] - self.points[i-1][1]
-            total += math.sqrt(dx*dx + dy*dy)
-        return total
+    def _profondeur(self):
+        # on mesure juste la distance verticale entre le départ et le bout
+        return self._bout()[1] - self.y
 
     def update(self, keys):
 
@@ -52,7 +49,8 @@ class Canne:
 
             self.points.append((nouveau_x, nouveau_y))
 
-            if self._longueur_totale() >= self.max_longueur:
+            # on vérifie la profondeur verticale et pas la longueur du fil
+            if self._profondeur() >= self.max_profondeur:
                 self.descend = False
                 self.remonte = True
 
