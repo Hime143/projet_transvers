@@ -80,7 +80,7 @@ class Poisson:
 
         # on charge et redimensionne une seule fois
         img = pygame.image.load(f"Images/{nom}").convert_alpha()
-        return pygame.transform.smoothscale(img, (self.taille, 50))
+        return pygame.transform.smoothscale(img, (self.taille,self.taille))
 
     def spawn(self):
         self.x = -120.0
