@@ -1,6 +1,7 @@
 import pygame
 from peche.mini_jeu_peche import lancer_mini_jeu
 from menu import ecran_accueil
+from fin import ecran_fin
 from dechet.dechet import dechet_poub as Dechet
 from dechet.inventaire import Inventaire
 from dechet.tri_dechet import InterfaceTri
@@ -193,6 +194,22 @@ def draw_inventaire(screen, inventaire, font):
                                              fenetre_y + fenetre_h - 20)))
 
 
+#def temps
+temps_depart = pygame.time.get_ticks()
+duree_partie = 300
+jeu_termine = False
+pause = False
+temps_pause_total = 0
+pause_debut = 0
+def pause_débuter():
+    global pause_debut
+    pause_debut = pygame.time.get_ticks()
+
+def pause_fin():
+    global temps_pause_total
+    pause_fin = pygame.time.get_ticks()
+    temps_pause_total += (pause_fin - pause_debut)
+
 # --- boucle principale ---
 while running:
 
@@ -226,6 +243,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if interface_tri.actif:
                 interface_tri.gerer_clic(souris_pos)
+
 
     keys = pygame.key.get_pressed()
 
@@ -287,8 +305,31 @@ while running:
 
         # touche E pour pêcher près de la zone de pêche
         if keys[pygame.K_e] and proche_peche:
+            pause_débuter()
             lancer_mini_jeu()
+            pause_fin()
             pygame.time.delay(300)
+
+    # --- calcul temps ---
+    temps_actuel = pygame.time.get_ticks()
+
+    temps_ecoule = (temps_actuel - temps_depart - temps_pause_total) // 1000
+    temps_restant = max(0, duree_partie - temps_ecoule)
+
+    minutes = temps_restant // 60
+    secondes = temps_restant % 60
+
+    texte_temps = font.render(f"{minutes:02}:{secondes:02}", True, (255, 255, 255))
+
+
+    if jeu_termine:
+        ecran_fin(screen, clock)
+        ecran_accueil(screen, clock, background, musique, parametre)
+        temps_depart = pygame.time.get_ticks()
+        jeu_termine = False
+
+    if temps_restant <= 0:
+        jeu_termine = True
 
     # --- animation boubou ---
     if moving:
@@ -319,6 +360,7 @@ while running:
 
     # --- affichage ---
     screen.blit(background, (0, 0))
+    screen.blit(texte_temps, (50, 20))
 
     for d in dechets_map:
         d.draw(screen)
