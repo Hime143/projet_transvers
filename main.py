@@ -1,7 +1,7 @@
 import pygame
 from peche.mini_jeu_peche import lancer_mini_jeu
 from menu import ecran_accueil
-from fin import ecran_fin
+from score_final import ecran_score_final
 from dechet.dechet import dechet_poub as Dechet
 from dechet.inventaire import Inventaire
 from dechet.tri_dechet import InterfaceTri
@@ -45,6 +45,9 @@ dechets_map   = [Dechet(collision_map, zones_interdites) for _ in range(3)]
 spawn_timer    = 0
 spawn_interval = 12 * 60
 
+# score pêche
+score_peche = 0
+
 # animation boubou
 direction       = "down"
 frame_index     = 0
@@ -66,9 +69,9 @@ def collision_poubelles(rect):
         5
     )
     collision_bleu = pygame.Rect(
-        poubelle_bleu_rect.x,                              # ← plus de marge sur les côtés
+        poubelle_bleu_rect.x,
         poubelle_bleu_rect.y + poubelle_bleu_rect.height // 2,
-        poubelle_bleu_rect.width,                          # ← largeur totale
+        poubelle_bleu_rect.width,
         poubelle_bleu_rect.height // 2
     )
     collision_jaune = pygame.Rect(
@@ -86,6 +89,7 @@ def collision_poubelles(rect):
     return (pieds.colliderect(collision_bleu) or
             pieds.colliderect(collision_jaune) or
             pieds.colliderect(collision_verte))
+
 
 def collision_peche(rect):
     """Bloque boubou autour de la zone de pêche"""
@@ -194,21 +198,24 @@ def draw_inventaire(screen, inventaire, font):
                                              fenetre_y + fenetre_h - 20)))
 
 
-#def temps
-temps_depart = pygame.time.get_ticks()
-duree_partie = 300
-jeu_termine = False
-pause = False
-temps_pause_total = 0
-pause_debut = 0
+# timer 5 minutes
+temps_depart       = pygame.time.get_ticks()
+duree_partie       = 300
+jeu_termine        = False
+temps_pause_total  = 0
+pause_debut        = 0
+
+
 def pause_débuter():
     global pause_debut
     pause_debut = pygame.time.get_ticks()
 
+
 def pause_fin():
     global temps_pause_total
-    pause_fin = pygame.time.get_ticks()
-    temps_pause_total += (pause_fin - pause_debut)
+    fin = pygame.time.get_ticks()
+    temps_pause_total += (fin - pause_debut)
+
 
 # --- boucle principale ---
 while running:
@@ -226,7 +233,7 @@ while running:
     # est-ce que boubou est proche des poubelles ou de la pêche ?
     proche_poubelle = proche_des_poubelles(boubou_rect)
     proche_peche    = proche_de_la_peche(boubou_rect)
-    proche_menu = boubou_rect.colliderect(zone_menu)
+    proche_menu     = boubou_rect.colliderect(zone_menu)
 
     # --- événements ---
     for event in pygame.event.get():
@@ -243,7 +250,6 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if interface_tri.actif:
                 interface_tri.gerer_clic(souris_pos)
-
 
     keys = pygame.key.get_pressed()
 
@@ -306,30 +312,31 @@ while running:
         # touche E pour pêcher près de la zone de pêche
         if keys[pygame.K_e] and proche_peche:
             pause_débuter()
-            lancer_mini_jeu()
+            score_peche += lancer_mini_jeu()
             pause_fin()
             pygame.time.delay(300)
 
     # --- calcul temps ---
-    temps_actuel = pygame.time.get_ticks()
-
-    temps_ecoule = (temps_actuel - temps_depart - temps_pause_total) // 1000
+    temps_actuel  = pygame.time.get_ticks()
+    temps_ecoule  = (temps_actuel - temps_depart - temps_pause_total) // 1000
     temps_restant = max(0, duree_partie - temps_ecoule)
-
-    minutes = temps_restant // 60
-    secondes = temps_restant % 60
-
-    texte_temps = font.render(f"{minutes:02}:{secondes:02}", True, (255, 255, 255))
-
-
-    if jeu_termine:
-        ecran_fin(screen, clock)
-        ecran_accueil(screen, clock, background, musique, parametre)
-        temps_depart = pygame.time.get_ticks()
-        jeu_termine = False
+    minutes       = temps_restant // 60
+    secondes      = temps_restant % 60
+    texte_temps   = font.render(f"{minutes:02}:{secondes:02}", True, (255, 255, 255))
 
     if temps_restant <= 0:
         jeu_termine = True
+
+    if jeu_termine:
+        nb_dechets = interface_tri.score // 10
+        ecran_score_final(
+            screen, clock,
+            score_peche,
+            interface_tri.score,
+            nb_dechets
+        )
+        running = False
+        jeu_termine = False
 
     # --- animation boubou ---
     if moving:
@@ -371,16 +378,14 @@ while running:
     screen.blit(poubelle_jaune,  poubelle_jaune_rect)
     screen.blit(poubelle_verte,  poubelle_verte_rect)
 
-    # boubou et icônes par dessus
-    screen.blit(boubou_img,  boubou_rect)
+    # boubou par dessus
+    screen.blit(boubou_img, boubou_rect)
 
     # message quand boubou est proche des poubelles
     if proche_poubelle and not interface_tri.actif:
         if not inventaire.est_vide():
             texte = font.render("E pour trier", True, (255, 255, 255))
-        else:
-            texte = font.render("", True, (255, 100, 100))
-        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+            screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # message quand boubou est proche de la pêche
     if proche_peche and not interface_tri.actif:
@@ -389,7 +394,6 @@ while running:
 
     # message proche igloo
     if proche_menu:
-        font = pygame.font.SysFont(None, 30)
         texte = font.render("Appuie sur E pour ouvrir le menu", True, (0, 0, 255))
         screen.blit(texte, (boubou_rect.x - 50, boubou_rect.y - 40))
 

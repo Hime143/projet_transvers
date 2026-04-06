@@ -41,7 +41,6 @@ def lancer_mini_jeu():
 
     while running:
 
-        # fond dégradé
         screen.fill((10, 60, 120))
         for i in range(700):
             ratio = i / 700
@@ -50,12 +49,10 @@ def lancer_mini_jeu():
             b = int(120 - ratio * 50)
             pygame.draw.line(screen, (r, g, b), (0, i), (1280, i))
 
-        # sol marin
         pygame.draw.ellipse(screen, (20, 100, 60),  pygame.Rect(-50, 640, 400, 120))
         pygame.draw.ellipse(screen, (15, 80, 50),   pygame.Rect(300, 650, 500, 100))
         pygame.draw.ellipse(screen, (25, 110, 70),  pygame.Rect(750, 635, 600, 130))
 
-        # bulles
         for b in bulles:
             b["y"] -= b["vitesse"]
             if b["y"] < -10:
@@ -67,9 +64,8 @@ def lancer_mini_jeu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return False
+                return 0
 
-        # spawn
         spawn_timer += 1
         if spawn_timer > 70:
             poissons.append(Poisson())
@@ -78,7 +74,6 @@ def lancer_mini_jeu():
         canne.update(keys)
         bout_x, bout_y = canne.get_hook_pos()
 
-        # poissons
         for p in poissons[:]:
             p.deplacement()
 
@@ -100,7 +95,6 @@ def lancer_mini_jeu():
             elif p.disparition():
                 poissons.remove(p)
 
-        # particules
         for part in particules[:]:
             part["x"] += part["vx"]
             part["y"] += part["vy"]
@@ -116,7 +110,6 @@ def lancer_mini_jeu():
 
         canne.draw(screen)
 
-        # --- HUD ---
         texte_score = font.render(f"Score : {score}", True, (255, 255, 255))
         screen.blit(texte_score, (20, 15))
 
@@ -126,7 +119,6 @@ def lancer_mini_jeu():
         )
         screen.blit(texte_poissons, (20, 55))
 
-        # barre de temps
         secondes = max(0, temps_restant // 60)
         largeur_barre = int(400 * temps_restant / temps_total)
         couleur_barre = (
@@ -149,11 +141,12 @@ def lancer_mini_jeu():
         clock.tick(60)
 
     _ecran_fin(screen, clock, score, objectif, total_poissons_peches, font_grande, font)
+    return score
 
 
 def _ecran_fin(screen, clock, score, objectif, total_peches, font_grande, font):
 
-    victoire = total_peches >= objectif  # ← corrigé
+    victoire = total_peches >= objectif
     timer = 0
 
     while True:
