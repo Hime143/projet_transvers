@@ -43,7 +43,7 @@ dechets_map   = [Dechet(collision_map, zones_interdites) for _ in range(3)]
 
 # timer spawn déchets toutes les 12s
 spawn_timer    = 0
-spawn_interval = 12 * 60
+spawn_interval = 3 * 60
 
 # score pêche
 score_peche = 0
@@ -206,6 +206,12 @@ temps_pause_total  = 0
 pause_debut        = 0
 
 
+# cooldown pêche
+temps_down_peche_depart = 0
+temps_down_peche_duree = 60
+peche_recent = False
+
+
 def pause_débuter():
     global pause_debut
     pause_debut = pygame.time.get_ticks()
@@ -226,7 +232,7 @@ while running:
 
     # spawn un déchet toutes les 12s (max 6 sur la map)
     spawn_timer += 1
-    if spawn_timer >= spawn_interval and len(dechets_map) < 6:
+    if spawn_timer >= spawn_interval and len(dechets_map) < 10:
         spawn_timer = 0
         dechets_map.append(Dechet(collision_map, zones_interdites))
 
@@ -310,10 +316,12 @@ while running:
             pygame.time.delay(200)
 
         # touche E pour pêcher près de la zone de pêche
-        if keys[pygame.K_e] and proche_peche:
+        if keys[pygame.K_e] and proche_peche and peche_recent == False:
             pause_débuter()
             score_peche += lancer_mini_jeu()
             pause_fin()
+            peche_recent = True
+            temps_down_peche_depart = pygame.time.get_ticks()
             pygame.time.delay(300)
 
     # --- calcul temps ---
@@ -323,6 +331,18 @@ while running:
     minutes       = temps_restant // 60
     secondes      = temps_restant % 60
     texte_temps   = font.render(f"{minutes:02}:{secondes:02}", True, (255, 255, 255))
+
+    # -- calcul temps pêche --
+    if peche_recent:
+        temps_actuel_peche = pygame.time.get_ticks()
+        temps_ecoule_peche = (temps_actuel_peche - temps_down_peche_depart) // 1000
+        temps_restant_peche = max(0, temps_down_peche_duree - temps_ecoule_peche)
+        minutes_peche = temps_restant_peche // 60
+        secondes_peche = temps_restant_peche % 60
+        texte_temps_peche = font.render(f"{minutes_peche:02}:{secondes_peche:02}", True, (115,138,176))
+        if temps_restant_peche <= 0:
+            peche_recent = False
+
 
     if temps_restant <= 0:
         jeu_termine = True
@@ -368,6 +388,8 @@ while running:
     # --- affichage ---
     screen.blit(background, (0, 0))
     screen.blit(texte_temps, (50, 20))
+    if peche_recent:
+        screen.blit(texte_temps_peche, (350, 400))
 
     for d in dechets_map:
         d.draw(screen)
@@ -375,10 +397,10 @@ while running:
     # zone pêche et poubelles en premier pour que boubou passe devant
     screen.blit(peche,           peche_rect)
     screen.blit(poubelle_bleu,   poubelle_bleu_rect)
+    # boubou par-dessus
     screen.blit(poubelle_jaune,  poubelle_jaune_rect)
     screen.blit(poubelle_verte,  poubelle_verte_rect)
 
-    # boubou par dessus
     screen.blit(boubou_img, boubou_rect)
 
     # message quand boubou est proche des poubelles
@@ -388,9 +410,13 @@ while running:
             screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # message quand boubou est proche de la pêche
-    if proche_peche and not interface_tri.actif:
+    if proche_peche and not interface_tri.actif and peche_recent == False:
         texte = font.render("E pour pêcher", True, (5, 5, 255))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+    elif proche_peche and not interface_tri.actif and peche_recent == True:
+        texte = font.render("Reviens plus tard!", True, (5, 5, 255))
+        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+
 
     # message proche igloo
     if proche_menu:

@@ -30,9 +30,9 @@ def ecran_score_final(screen, clock, score_peche, score_tri, nb_dechets):
     img_argent = pygame.image.load("Images/medaille_argent.png").convert_alpha()
     img_bronze = pygame.image.load("Images/medaille_bronze.png").convert_alpha()
 
-    img_or = pygame.transform.smoothscale(img_or, (280, 120))
-    img_argent = pygame.transform.smoothscale(img_argent, (240,95))
-    img_bronze = pygame.transform.smoothscale(img_bronze, (210, 75))
+    img_or = pygame.transform.smoothscale(img_or, (220, 300))
+    img_argent = pygame.transform.smoothscale(img_argent, (190,260))
+    img_bronze = pygame.transform.smoothscale(img_bronze, (165, 225))
 
     if medaille == "or":
         couleur_msg   = (255, 200, 0)
