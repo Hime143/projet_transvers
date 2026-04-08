@@ -389,7 +389,6 @@ while running:
 
     # --- affichage ---
     screen.blit(background, (0, 0))
-    screen.blit(texte_temps, (50, 20))
     if peche_recent:
         screen.blit(texte_temps_peche, (350, 400))
 
@@ -447,18 +446,23 @@ while running:
     # interface de tri
     interface_tri.draw(screen)
     # couleur et vitesse selon le nombre de déchets sur la map
+    # couleur et vitesse selon le nombre de déchets sur la map
     nb_dechets_map = len(dechets_map)
 
     if nb_dechets_map >= 10:
-        # 10+ déchets → rouge, temps descend 3x plus vite
-        couleur_timer = (255, 60, 60)
-        temps_pause_total -= 2 * 1000  # on retire 2s supplémentaires par seconde
+        couleur_timer = (255, 0, 0)
+        temps_pause_total -= 2 * 50
     elif nb_dechets_map >= 8:
-        # 8+ déchets → jaune, temps descend 2x plus vite
-        couleur_timer = (255, 220, 0)
-        temps_pause_total -= 1 * 1000  # on retire 1s supplémentaire par seconde
+        couleur_timer = (255, 100, 0)
+        temps_pause_total -= 1 * 50
     else:
         couleur_timer = (255, 255, 255)
+
+    # créer le texte avec la bonne couleur
+    texte_temps = font.render(f"{minutes:02}:{secondes:02}", True, couleur_timer)
+
+    # 👉 afficher ici (et PAS avant)
+    screen.blit(texte_temps, (50, 20))
 
     texte_temps = font.render(f"{minutes:02}:{secondes:02}", True, couleur_timer)
 
