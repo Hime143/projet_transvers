@@ -250,7 +250,9 @@ while running:
             if event.key == pygame.K_TAB:
                 afficher_inventaire = not afficher_inventaire
             if event.key == pygame.K_e and proche_menu:
+                pause_débuter()
                 ecran_accueil(screen, clock, background, musique, parametre)
+                pause_fin()
 
         # clic dans l'interface de tri
         if event.type == pygame.MOUSEBUTTONDOWN:
