@@ -17,7 +17,7 @@ speed = 3
 
 from img import *
 
-if not ecran_accueil(screen, clock, background, musique, parametre):
+if not ecran_accueil(screen, clock, background, musique, parametre,logo):
     pygame.quit()
     exit()
 
@@ -251,7 +251,7 @@ while running:
                 afficher_inventaire = not afficher_inventaire
             if event.key == pygame.K_e and proche_menu:
                 pause_débuter()
-                ecran_accueil(screen, clock, background, musique, parametre)
+                ecran_accueil(screen, clock, background, musique, parametre,logo)
                 pause_fin()
 
         # clic dans l'interface de tri

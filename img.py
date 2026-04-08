@@ -64,6 +64,11 @@ peche     = pygame.transform.smoothscale(peche, (200, 200))
 poubelle  = pygame.image.load("Images/poubelle_icone.png").convert_alpha()
 poubelle  = pygame.transform.smoothscale(poubelle, (60, 60))
 
+# LOGO
+
+logo = pygame.image.load("Images/logo.png").convert_alpha()
+logo = pygame.transform.smoothscale(logo, (300, 300))
+
 # POUBELLES DE TRI
 poubelle_bleu  = pygame.image.load("Images/poubelle_bleu.png").convert_alpha()
 poubelle_bleu  = pygame.transform.smoothscale(poubelle_bleu, (65, 120))

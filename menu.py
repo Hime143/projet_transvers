@@ -1,6 +1,7 @@
 # menu.py
 import pygame
 
+
 def draw_popup(screen, type_menu, volume, mouse_pos):
     """
     Dessine l'overlay + la fenêtre centrale et retourne (close_rect, bar_rect_or_None).
@@ -66,7 +67,7 @@ def draw_popup(screen, type_menu, volume, mouse_pos):
         return close_rect, None
 
 
-def ecran_accueil(screen, clock, background, musique, parametre):
+def ecran_accueil(screen, clock, background, musique, parametre,logo):
     """
     Affiche le menu principal. Retourne True si on lance le jeu, False si on quitte.
     - musique: surface icône musique
@@ -74,7 +75,6 @@ def ecran_accueil(screen, clock, background, musique, parametre):
     """
 
     # polices et boutons
-    font_titre = pygame.font.SysFont(None, 90)
     font_bouton = pygame.font.SysFont(None, 50)
 
     sw, sh = screen.get_size()
@@ -90,6 +90,7 @@ def ecran_accueil(screen, clock, background, musique, parametre):
     music_rect = musique.get_rect(topleft=(sw - 130, 20))
     settings_rect = parametre.get_rect(topleft=(sw - 220, 20))
 
+
     dragging = False  # pour slider
     bar_rect = None   # rectangle de la barre (mis à jour quand popup ouvert)
 
@@ -99,9 +100,6 @@ def ecran_accueil(screen, clock, background, musique, parametre):
         # --- DESSIN DE FOND et UI ---
         screen.blit(background, (0, 0))
 
-        # titre
-        titre = font_titre.render("IceGuardian", True, (0, 0, 255))
-        screen.blit(titre, titre.get_rect(center=(sw//2, 150)))
 
         # boutons classiques
         couleur_jouer = (0, 200, 255) if bouton_jouer.collidepoint(mouse_pos) else (120,150,200)
@@ -115,6 +113,8 @@ def ecran_accueil(screen, clock, background, musique, parametre):
 
         screen.blit(texte_jouer, texte_jouer.get_rect(center=bouton_jouer.center))
         screen.blit(texte_quitter, texte_quitter.get_rect(center=bouton_quitter.center))
+        screen.blit(logo, logo.get_rect(center=(sw // 2, 180)))
+
 
         # --- icônes avec effet hover (zoom) ---
         def draw_icon(icon, rect):
