@@ -446,6 +446,21 @@ while running:
 
     # interface de tri
     interface_tri.draw(screen)
+    # couleur et vitesse selon le nombre de déchets sur la map
+    nb_dechets_map = len(dechets_map)
+
+    if nb_dechets_map >= 10:
+        # 10+ déchets → rouge, temps descend 3x plus vite
+        couleur_timer = (255, 60, 60)
+        temps_pause_total -= 2 * 1000  # on retire 2s supplémentaires par seconde
+    elif nb_dechets_map >= 8:
+        # 8+ déchets → jaune, temps descend 2x plus vite
+        couleur_timer = (255, 220, 0)
+        temps_pause_total -= 1 * 1000  # on retire 1s supplémentaire par seconde
+    else:
+        couleur_timer = (255, 255, 255)
+
+    texte_temps = font.render(f"{minutes:02}:{secondes:02}", True, couleur_timer)
 
     # hint TAB
     hint = font.render("TAB : inventaire", True, (180, 180, 180))

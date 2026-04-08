@@ -1,8 +1,8 @@
 import pygame
 
-SEUIL_BRONZE = 100
-SEUIL_ARGENT = 200
-SEUIL_OR     = 350
+SEUIL_BRONZE = 600
+SEUIL_ARGENT = 800
+SEUIL_OR     = 1000
 
 
 def calculer_medaille(score_total):
