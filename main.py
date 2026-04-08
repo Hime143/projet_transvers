@@ -414,16 +414,16 @@ while running:
     # message quand boubou est proche de la pêche
     if proche_peche and not interface_tri.actif and peche_recent == False:
         texte = font.render("E pour pêcher", True, (5, 5, 255))
-        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 50))
     elif proche_peche and not interface_tri.actif and peche_recent == True:
         texte = font.render("Reviens plus tard!", True, (5, 5, 255))
-        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
+        screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 50))
 
 
     # message proche igloo
     if proche_menu:
         texte = font.render("Appuie sur E pour ouvrir le menu", True, (0, 0, 255))
-        screen.blit(texte, (boubou_rect.x - 50, boubou_rect.y - 40))
+        screen.blit(texte, (boubou_rect.x - 50, boubou_rect.y - 50))
 
     # --- ramassage déchet avec F ---
     if not interface_tri.actif:
