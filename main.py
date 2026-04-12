@@ -5,6 +5,7 @@ from score_final import ecran_score_final
 from dechet.dechet import dechet_poub as Dechet
 from dechet.inventaire import Inventaire
 from dechet.tri_dechet import InterfaceTri
+import temps
 
 pygame.init()
 import os
@@ -23,6 +24,7 @@ screen = pygame.display.set_mode((1280, 700))
 pygame.display.set_caption("IceGuardian")
 clock = pygame.time.Clock()
 running = True
+jeu_termine = False
 speed = 3
 
 from img import *
@@ -67,6 +69,7 @@ moving          = False
 
 # inventaire visible ou non
 afficher_inventaire = False
+
 
 zone_menu = pygame.Rect(600, 140, 60, 60)
 
@@ -207,31 +210,8 @@ def draw_inventaire(screen, inventaire, font):
     screen.blit(hint, hint.get_rect(center=(fenetre_x + fenetre_w // 2,
                                              fenetre_y + fenetre_h - 20)))
 
-
-# timer 5 minutes
-temps_depart       = pygame.time.get_ticks()
-duree_partie       = 300
-jeu_termine        = False
-temps_pause_total  = 0
-pause_debut        = 0
-
-
-# cooldown pêche
-temps_down_peche_depart = 0
-temps_down_peche_duree = 60
-peche_recent = False
-
-
-def pause_débuter():
-    global pause_debut
-    pause_debut = pygame.time.get_ticks()
-
-
-def pause_fin():
-    global temps_pause_total
-    fin = pygame.time.get_ticks()
-    temps_pause_total += (fin - pause_debut)
-
+#set timer
+temps.init_timer()
 
 # --- boucle principale ---
 while running:
@@ -242,7 +222,7 @@ while running:
 
     # spawn un déchet toutes les 12s (max 6 sur la map)
     spawn_timer += 1
-    if spawn_timer >= spawn_interval and len(dechets_map) < 10:
+    if spawn_timer >= spawn_interval and len(dechets_map) < 10 and not interface_tri.actif :
         spawn_timer = 0
         dechets_map.append(Dechet(collision_map, zones_interdites))
 
@@ -260,9 +240,9 @@ while running:
             if event.key == pygame.K_TAB:
                 afficher_inventaire = not afficher_inventaire
             if event.key == pygame.K_e and proche_menu:
-                pause_débuter()
+                temps.pause_debuter()
                 ecran_accueil(screen, clock, background, musique, parametre,logo)
-                pause_fin()
+                temps.pause_fin()
 
         # clic dans l'interface de tri
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -328,36 +308,31 @@ while running:
             pygame.time.delay(200)
 
         # touche E pour pêcher près de la zone de pêche
-        if keys[pygame.K_e] and proche_peche and peche_recent == False:
-            pause_débuter()
+        if keys[pygame.K_e] and proche_peche and not temps.peche_recent:
+            temps.pause_debuter()
             score_peche += lancer_mini_jeu()
-            pause_fin()
-            peche_recent = True
-            temps_down_peche_depart = pygame.time.get_ticks()
+            temps.pause_fin()
+            temps.lancer_cooldown_peche()
             pygame.time.delay(300)
 
-    # --- calcul temps ---
-    temps_actuel  = pygame.time.get_ticks()
-    temps_ecoule  = (temps_actuel - temps_depart - temps_pause_total) // 1000
-    temps_restant = max(0, duree_partie - temps_ecoule)
-    minutes       = temps_restant // 60
-    secondes      = temps_restant % 60
-    texte_temps   = font.render(f"{minutes:02}:{secondes:02}", True, (255, 255, 255))
+    temps_restant = temps.get_temps_restant()
 
-    # -- calcul temps pêche --
-    if peche_recent:
-        temps_actuel_peche = pygame.time.get_ticks()
-        temps_ecoule_peche = (temps_actuel_peche - temps_down_peche_depart) // 1000
-        temps_restant_peche = max(0, temps_down_peche_duree - temps_ecoule_peche)
-        minutes_peche = temps_restant_peche // 60
-        secondes_peche = temps_restant_peche % 60
-        texte_temps_peche = font.render(f"{minutes_peche:02}:{secondes_peche:02}", True, (115,138,176))
-        if temps_restant_peche <= 0:
-            peche_recent = False
+    minutes = temps_restant // 60
+    secondes = temps_restant % 60
+
+    texte = font.render(f"{minutes:02}:{secondes:02}", True, (255, 255, 255))
+    screen.blit(texte, (1100, 20))
 
 
-    if temps_restant <= 0:
+    if temps.get_temps_restant() <= 0:
         jeu_termine = True
+
+    cooldown = temps.get_cooldown_peche()
+    temps.update_cooldown_peche()
+    if cooldown > 0:
+        minutes_peche = cooldown // 60
+        secondes_peche = cooldown % 60
+        texte_temps_peche = font.render(f"{minutes_peche:02}:{secondes_peche:02}", True, (115, 138, 176))
 
     if jeu_termine:
         nb_dechets = interface_tri.score // 10
@@ -399,7 +374,7 @@ while running:
 
     # --- affichage ---
     screen.blit(background, (0, 0))
-    if peche_recent:
+    if temps.peche_recent:
         screen.blit(texte_temps_peche, (350, 400))
 
     for d in dechets_map:
@@ -421,10 +396,10 @@ while running:
             screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 30))
 
     # message quand boubou est proche de la pêche
-    if proche_peche and not interface_tri.actif and peche_recent == False:
+    if proche_peche and not interface_tri.actif and not temps.peche_recent:
         texte = font.render("E pour pêcher", True, (5, 5, 255))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 50))
-    elif proche_peche and not interface_tri.actif and peche_recent == True:
+    elif proche_peche and not interface_tri.actif and temps.peche_recent:
         texte = font.render("Reviens plus tard!", True, (5, 5, 255))
         screen.blit(texte, (boubou_rect.x - 20, boubou_rect.y - 50))
 
@@ -461,10 +436,10 @@ while running:
 
     if nb_dechets_map >= 10:
         couleur_timer = (255, 0, 0)
-        temps_pause_total -= 2 * 50
+        temps.set_multiplicateur(2.0)
     elif nb_dechets_map >= 8:
         couleur_timer = (255, 100, 0)
-        temps_pause_total -= 1 * 50
+        temps.set_multiplicateur(1.5)
     else:
         couleur_timer = (255, 255, 255)
 

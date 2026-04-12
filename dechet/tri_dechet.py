@@ -1,4 +1,5 @@
 import pygame
+from temps import pause_fin , pause_debuter
 
 # couleurs des poubelles
 COULEURS = {
@@ -61,11 +62,13 @@ class InterfaceTri:
         # ouvre l'interface et remet le timer à zéro
         self.actif = True
         self.temps_restant = self.temps_total
+        pause_debuter()
 
     def fermer(self):
         # ferme l'interface
         self.actif = False
         self.feedback = None
+        pause_fin()
 
     def trier(self, categorie_choisie):
         # si l'inventaire est vide on ferme

@@ -51,7 +51,7 @@ def ecran_score_final(screen, clock, score_peche, score_tri, nb_dechets):
         msg_principal = "On peut faire mieux !"
         msg_encourage = f"Encore {SEUIL_BRONZE - score_total} points pour le BRONZE, allez !"
 
-    bouton_menu = pygame.Rect(540, 630, 200, 60)
+    bouton_quitter = pygame.Rect(540, 630, 200, 60)
 
     while True:
 
@@ -101,19 +101,19 @@ def ecran_score_final(screen, clock, score_peche, score_tri, nb_dechets):
         )
         screen.blit(seuils, seuils.get_rect(center=(640, 550)))
 
-        # bouton menu
+        # bouton Quitter
         mouse_pos   = pygame.mouse.get_pos()
-        couleur_btn = (0, 200, 255) if bouton_menu.collidepoint(mouse_pos) else (120, 150, 200)
-        pygame.draw.rect(screen, couleur_btn, bouton_menu, border_radius=10)
-        texte_btn = font.render("Menu", True, (255, 255, 255))
-        screen.blit(texte_btn, texte_btn.get_rect(center=bouton_menu.center))
+        couleur_btn = (0, 200, 255) if bouton_quitter.collidepoint(mouse_pos) else (120, 150, 200)
+        pygame.draw.rect(screen, couleur_btn, bouton_quitter, border_radius=10)
+        texte_btn = font.render("Quitter", True, (255, 255, 255))
+        screen.blit(texte_btn, texte_btn.get_rect(center=bouton_quitter.center))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if bouton_menu.collidepoint(event.pos):
+                if bouton_quitter.collidepoint(event.pos):
                     return
 
         pygame.display.flip()
