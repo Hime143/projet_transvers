@@ -7,6 +7,16 @@ from dechet.inventaire import Inventaire
 from dechet.tri_dechet import InterfaceTri
 
 pygame.init()
+import os
+
+pygame.mixer.init()
+
+base_path = os.path.dirname(__file__)
+music_path = os.path.join(base_path, "interface", "assets", "audio", "musique.mp3")
+
+pygame.mixer.music.load(music_path)
+pygame.mixer.music.set_volume(1.0)
+pygame.mixer.music.play(-1)
 font = pygame.font.SysFont(None, 30)
 
 screen = pygame.display.set_mode((1280, 700))
@@ -471,5 +481,7 @@ while running:
     screen.blit(hint, (1100, 10))
 
     pygame.display.flip()
+
+
 
 pygame.quit()
